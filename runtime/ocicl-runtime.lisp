@@ -63,6 +63,7 @@
 (defun ocicl-install (name)
   (let* ((cmd (format nil "ocicl install ~A" name))
          (output (uiop:run-program cmd :output '(:string))))
+    (setq *systems-csv-mtime* 0)
     (when *verbose*
       (format t "~A~%~A~%" cmd output))))
 
@@ -76,6 +77,8 @@
   (when (probe-file *systems-csv*)
     (let ((mtime (sb-posix:stat-mtime (sb-posix:stat *systems-csv*))))
       (when (> mtime *systems-csv-mtime*)
+        (when *verbose*
+          (format t "; old csv mtime = ~A~%; new csv mtime = ~A~%" *systems-csv-mtime* mtime))
         (setq *ocicl-systems* (read-systems-csv))
         (setq *systems-csv-mtime* mtime))))
 
